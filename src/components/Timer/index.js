@@ -1,41 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Interval from "../Interval";
+import useInterval from "../../hooks/useInterval";
 
 const Timer = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [currentInterval, setCurrentInterval] = useState(0);
-  const [isPlay, setPlay] = useState(false);
 
-  function handleStart() {
-    if (currentInterval === 0) return;
-
-    setPlay(true);
-  }
-
-  function handleStop() {
-    setPlay(false);
-    setCurrentTime(0);
-  }
+  const { start, stop } = useInterval(() => {
+    setCurrentTime((prevState) => prevState + currentInterval);
+  }, currentInterval);
 
   function changeInterval(count) {
     if (count === -1) return;
 
     setCurrentInterval(count);
   }
-
-  useEffect(() => {
-    let savedInterval = null;
-
-    if (isPlay) {
-      savedInterval = setInterval(() => {
-        setCurrentTime((prevState) => prevState + currentInterval);
-      }, currentInterval * 1000);
-    } else if (!isPlay || currentInterval === 0) {
-      clearInterval(savedInterval);
-    }
-
-    return () => clearInterval(savedInterval);
-  }, [currentInterval, isPlay]);
 
   return (
     <div>
@@ -45,8 +24,11 @@ const Timer = () => {
       />
       <div>Секундомер: {currentTime} сек.</div>
       <div>
-        <button onClick={handleStart}>Старт</button>
-        <button onClick={handleStop}>Стоп</button>
+        <button onClick={start}>Старт</button>
+        <button onClick={() => {
+            stop()
+            setCurrentTime(0)
+        }}>Стоп</button>
       </div>
     </div>
   );
